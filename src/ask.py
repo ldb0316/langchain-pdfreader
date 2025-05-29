@@ -1,9 +1,7 @@
-from langchain.embeddings import OpenAIEmbeddings
-
 import os
 
-from langchain_community.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
 import streamlit as st
 
 from ingest import indexing
@@ -15,8 +13,6 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 embeddings = OpenAIEmbeddings()
 
 # file을 입력받아 처리 후 chain 생성하여 반환
-
-# db = FAISS.load_local("shower", embeddings=embeddings, allow_dangerous_deserialization=True)
 @st.cache_resource
 def get_db(uploaded_file):
     indexing(uploaded_file)
