@@ -1,6 +1,6 @@
 ## python 3.10.12
 
-로컬 환경변수에 OPENAI_API_KEY 설정 필요
+OPENAI API사용 시 로컬 환경변수에 OPENAI_API_KEY 설정 필요
 ### linux 
 ``` sh
 # .bashrc
