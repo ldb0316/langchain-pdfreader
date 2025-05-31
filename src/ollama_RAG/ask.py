@@ -1,16 +1,14 @@
 import os
 
-from langchain_openai import OpenAIEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from langchain_community.vectorstores import FAISS
 import streamlit as st
 
 from ingest import indexing
 import os
-import openai
+import ollama
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-embeddings = OpenAIEmbeddings()
+embeddings = OllamaEmbeddings(model="phi4:latest")
 
 # file을 입력받아 처리 후 chain 생성하여 반환
 @st.cache_resource
@@ -34,14 +32,9 @@ def create_generator(text, db):
         text[-1]
     ]
 
-    gen = openai.chat.completions.create(
-      model="gpt-4o-mini",
+    gen = ollama.chat(
+      model="phi4:latest",
       messages=messages,
-      temperature=0.5,
-      max_tokens=512,
-      top_p=1,
-      frequency_penalty=0,
-      presence_penalty=0,
       stream=True
     )
     return gen
@@ -74,17 +67,18 @@ def main():
             with st.chat_message("assistant"):
                 message_placeholder = st.empty()
                 full_response = ""        
-                while True:
-                    response = next(gen)
-                    delta = response.choices[0].delta
-                    if delta.content is not None:
-                        full_response += delta.content
-                        message_placeholder.markdown(full_response + "▌")
-                    else:
-                        break
-
-                message_placeholder.markdown(full_response)
-                st.session_state.messages.append({"role": "assistant", "content":full_response})
+                try:
+                    while True:
+                        response = next(gen)
+                        content = response.message.content
+                        if content is not None:
+                            full_response += content
+                            message_placeholder.markdown(full_response + "▌")
+                        else:
+                            break
+                except StopIteration:
+                    message_placeholder.markdown(full_response)
+                    st.session_state.messages.append({"role": "assistant", "content":full_response})
         else:
             with st.chat_message("assistant"):
                 message_placeholder = st.empty()

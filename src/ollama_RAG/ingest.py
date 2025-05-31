@@ -1,10 +1,11 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.indexes import VectorstoreIndexCreator
 import tempfile
 import streamlit as st
+import ollama
 
 @st.cache_resource
 def indexing(file):
@@ -18,7 +19,7 @@ def indexing(file):
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     docs = text_splitter.split_documents(documents)
 
-    embeddings = OpenAIEmbeddings()
+    embeddings = OllamaEmbeddings(model="phi4:latest")
 
     index = VectorstoreIndexCreator(
         vectorstore_cls=FAISS,
